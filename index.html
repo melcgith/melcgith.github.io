@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<head>
+  <title>
+    Sandy's Numbers
+  </title>
+  <link rel="stylesheet" href="stylesheet.css"/>
+</head>
+<body>
+  <script src="scripts.js"></script>
+  <dialog id="selectDialog">
+    <div>
+      <button>1</button>
+      <button>2</button>
+    </div>
+    <div>
+      <button>3</button>
+      <button>4</button>
+    </div>
+  </dialog>
+  <dialog id="instructionsDialog">
+    <h3>Game instructions:</h3>
+    <p>Use the hint values given on the top, left, right and bottom to fill the game table in the center. Each possible values should only appear once by row and also by column.</p>
+    <button id="hideInstructions">OK</button>
+  </dialog>
+  <h1 id="game_name">Sandy's Numbers</h1>
+  <div id="game">
+  <table class="hint" id="hint_top">
+    <tr>
+      <td class="hint_cell1">X</td>
+      <td class="hint_cell2">X</td>
+      <td class="hint_cell3">X</td>
+      <td class="hint_cell4">X</td>
+    </tr>
+  </table>
+  <div id="center_items">
+  <table class="hint" id="hint_left">
+    <tr>
+      <td class="hint_cell1">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell2">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell3">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell4">X</td>
+    </tr>
+  </table>
+  <table id="game">
+    <tr id="row1">
+      <td class="column1"></td>
+      <td class="column2"></td>
+      <td class="column3"></td>
+      <td class="column4"></td>
+    </tr>
+    <tr id="row2">
+      <td class="column1"></td>
+      <td class="column2"></td>
+      <td class="column3"></td>
+      <td class="column4"></td>
+    </tr>
+   <tr id="row3">
+      <td class="column1"></td>
+      <td class="column2"></td>
+      <td class="column3"></td>
+      <td class="column4"></td>
+    </tr>
+    <tr id="row4">
+      <td class="column1"></td>
+      <td class="column2"></td>
+      <td class="column3"></td>
+      <td class="column4"></td>
+    </tr> 
+  </table>
+  <table class="hint" id="hint_right">
+    <tr>
+      <td class="hint_cell1">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell2">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell3">X</td>
+    </tr>
+    <tr>
+      <td class="hint_cell4">X</td>
+    </tr>
+  </table>
+  </div>
+<table class="hint" id="hint_bottom">
+    <tr>
+      <td class="hint_cell1">X</td>
+      <td class="hint_cell2">X</td>
+      <td class="hint_cell3">X</td>
+      <td class="hint_cell4">X</td>
+    </tr>
+</table>
+</div>
+<div class="control buttons">
+  <table>
+    <tr>
+      <td id="showInstructions"><img src="help.svg"/></td>
+      <td id="seeSolution"><img src="eye.svg"/></td>
+      <td id="validateInputs"><img src="validate.svg"/></td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
