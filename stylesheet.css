@@ -1,0 +1,74 @@
+body{
+  font-family: Times New Roman;
+}
+button {
+  margin-top: 3rem;
+  font-size: 2rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+#game_name {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+#game td{
+  width: 3rem;
+  height: 3rem;
+}
+tr, td{
+  border: 1px solid black;
+  border-collapse: collapse;
+  text-align: center;
+}
+.hidden{
+  display: none;
+}
+.hint td{
+  background-color: gray;
+  color: blue;
+}
+.hint {
+  display: flex;
+  justify-content: center;
+  margin: 1rem;
+  border: none;
+  border-collapse: collapse;
+}
+
+#center_items{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.control.buttons {
+  display: flex;
+  justify-content: center;
+}
+.control.buttons table {
+  border-collapse: separate;
+  margin-top: 2.5rem;
+  border-radius: 20px;
+}
+.control.buttons td {
+  width: 4rem;
+  height: 4rem;
+  border: none;
+}
+#game{
+  align-items: center;
+  border-collapse: collapse;
+  font-size: 2rem;
+}
+#selectDialog div {
+  display: flex;
+  justify-content: center;
+}
+#selectDialog button:focus, 
+#instructionsDialog button:focus {
+  outline: none;
+}
+#selectDialog button {
+  margin:0;
+  font-size: 4rem;
+}
