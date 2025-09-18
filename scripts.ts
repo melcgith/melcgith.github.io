@@ -252,16 +252,16 @@ function generateGameValues() : Array<GameEntry> {
     }
   }
   
-  // Generate random numbers for the remaining 
-  //for (let rowIndex = 0; rowIndex < GAME_ENTRY_SIZE; rowIndex++){
-    //for (let columnIndex = 0; columnIndex < GAME_ENTRY_SIZE; columnIndex++){
+  //Generate random numbers for the remaining 
+  for (let rowIndex = 0; rowIndex < GAME_ENTRY_SIZE; rowIndex++){
+    for (let columnIndex = 0; columnIndex < GAME_ENTRY_SIZE; columnIndex++){
       // only generate numbers for non initialized cells
-      //if (gameValues[rowIndex][columnIndex] === 0){
-        //const randomValue = getRandomValueForCell(rowIndex, columnIndex, gameValues);
-    //gameValues[rowIndex][columnIndex] = randomValue;
-      //}
-    //}
-  //}
+      if (gameValues[rowIndex][columnIndex] === 0){
+        const randomValue = getRandomValueForCell(rowIndex, columnIndex, gameValues);
+        gameValues[rowIndex][columnIndex] = randomValue;
+      }
+    }
+  }
   return gameValues;
 }
 
