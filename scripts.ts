@@ -13,6 +13,15 @@ enum HintPosition {
   bottom = 3
 }
 
+// Log debug information that are sometime cryptic and destinate to developers. The text to log will only be visible if the query parameter "?debug" is used.
+function LOG(text: string) : void {
+  //const urlParams = new URLSearchParams(window.location.search);
+  //const debugActivated = urlParams.has("debug");
+  //if (debugActivated){
+    console.log(text);
+  //}
+}
+
 // This class represents the game.
 class Game {
   // Stores all the hint values for the current game
@@ -22,6 +31,7 @@ class Game {
   private gameValues: Array<GameEntry>;
   
   constructor() {
+    LOG("Creating new game");
     this.gameValues = generateGameValues();
     this.hintValues = computeAllHintValues(this.gameValues);
   }
@@ -119,8 +129,8 @@ function addAllEventListeners() : void {
   });
   
   // Add event listener to all the buttons contained in the selectDialog
-  const allButtons = selectDialog.getElementsByTagName('button');
-  for (const button of allButtons){
+  const allButtons = selectDialog.getElementsByTagName('button') as HTMLCollectionOf<HTMLButtonElement>;
+  for (const button of Array.from(allButtons)){
     button.addEventListener('click', () => {
       selectDialog.close(button.textContent);
     });
@@ -144,7 +154,7 @@ function addAllEventListeners() : void {
   const columns = ["column1", "column2", "column3", "column4"];
   for (const column of columns){
     let cells = document.getElementsByClassName(column);
-    for (const cell of cells) {
+    for (const cell of Array.from(cells)) {
       cell.addEventListener('click', cellClickEventHandler);
     }
   }
@@ -217,52 +227,73 @@ function initializeGame(event: Event) : void {
 window.addEventListener('load', initializeGame);
 
 // Generates all the values for the game
-function generateGameValues() : Array<GameEntry> {
-  // Initialize all the game values with default value
-  const defaultValue = 0
-  const gameValues: Array<GameEntry> = Array.from({length: GAME_ENTRY_SIZE}, () => Array.from({length: GAME_ENTRY_SIZE}, () => defaultValue));
-  
-  // We want to generate the random numbers in sub squares. When the size of the game table is odd, we will take the next size bigger than the half.
-  const gameSizeIsEven = GAME_ENTRY_SIZE % 2 === 0;
-  const sizeOfSubSquares = GAME_ENTRY_SIZE / 2 + (gameSizeIsEven ? 0 : 1);
-  
-  // Generate numbers for the first square
-  const firstSquareRandomNumbers = new Array<number>();
-  
-  for (let rowIndex = 0; rowIndex < sizeOfSubSquares; rowIndex++) {
-    for (let columnIndex = 0; columnIndex < sizeOfSubSquares; columnIndex++) {
-      const randomValue = getRandomValueForCell(rowIndex, columnIndex, gameValues);
-    gameValues[rowIndex][columnIndex] = randomValue;
-    firstSquareRandomNumbers.push(randomValue);
-    }
-  }
-  
-  // Generate numbers for the last square
-  // The last square should contain the same numbers than the first one
-  for (let rowIndex = GAME_ENTRY_SIZE-sizeOfSubSquares; rowIndex < GAME_ENTRY_SIZE; rowIndex++) {
-    for (let columnIndex = GAME_ENTRY_SIZE-sizeOfSubSquares; columnIndex < GAME_ENTRY_SIZE; columnIndex++){
-      const randomValue = getRandomValueForCell(rowIndex, columnIndex, gameValues, firstSquareRandomNumbers);
-      LOG(`randomValue is ${randomValue}`)
-      // Remove the randomValue from the Array
-      const randomValueIndex = firstSquareRandomNumbers.indexOf(randomValue);
-      assert(randomValueIndex !== -1, "randomValue not found in valid values array");
-      firstSquareRandomNumbers.splice(randomValueIndex, 1);
-    gameValues[rowIndex][columnIndex] = randomValue;
-      LOG(`firstSquareRandomNumbers: ${firstSquareRandomNumbers}`);
-    }
-  }
-  
-  //Generate random numbers for the remaining 
-  for (let rowIndex = 0; rowIndex < GAME_ENTRY_SIZE; rowIndex++){
-    for (let columnIndex = 0; columnIndex < GAME_ENTRY_SIZE; columnIndex++){
-      // only generate numbers for non initialized cells
-      if (gameValues[rowIndex][columnIndex] === 0){
-        const randomValue = getRandomValueForCell(rowIndex, columnIndex, gameValues);
-        gameValues[rowIndex][columnIndex] = randomValue;
+function generateGameValues(): Array<GameEntry> {
+  const defaultValue = 0;
+  const gameValues: Array<GameEntry> = Array.from(
+    { length: GAME_ENTRY_SIZE },
+    () => Array.from({ length: GAME_ENTRY_SIZE }, () => defaultValue)
+  );
+
+  const allValidValues = getAllValidValues();
+
+  // Helper function to check if a value is valid for a specific cell
+  const isValid = (rowIndex: number, columnIndex: number, value: number): boolean => {
+    // Check row
+    if (gameValues[rowIndex].includes(value)) return false;
+
+    // Check column
+    const columnValues = getColumnValues(columnIndex, gameValues);
+    if (columnValues.includes(value)) return false;
+
+    /*// Check sub-square
+    const subSquareSize = Math.ceil(GAME_ENTRY_SIZE / 2);
+    const startRow = Math.floor(rowIndex / subSquareSize) * subSquareSize;
+    const startCol = Math.floor(columnIndex / subSquareSize) * subSquareSize;
+    for (let i = startRow; i < startRow + subSquareSize; i++) {
+      for (let j = startCol; j < startCol + subSquareSize; j++) {
+        if (gameValues[i][j] === value) return false;
+      }
+    }*/
+
+    return true;
+  };
+
+  // Backtracking function to fill the game board
+  const fillBoard = (rowIndex: number, columnIndex: number): boolean => {
+    LOG(`Filling cell at row ${rowIndex}, column ${columnIndex}`);
+    if (rowIndex === GAME_ENTRY_SIZE) return true; // All rows filled
+
+    const nextRow = columnIndex === GAME_ENTRY_SIZE - 1 ? rowIndex + 1 : rowIndex;
+    const nextCol = (columnIndex + 1) % GAME_ENTRY_SIZE;
+
+    for (const value of shuffleArray([...allValidValues])) {
+      if (isValid(rowIndex, columnIndex, value)) {
+        gameValues[rowIndex][columnIndex] = value;
+
+        if (fillBoard(nextRow, nextCol)) {
+          return true;
+        }
+
+        // Backtrack
+        gameValues[rowIndex][columnIndex] = defaultValue;
       }
     }
-  }
+    LOG(`Backtracking from row ${rowIndex}, column ${columnIndex}`);
+    return false; // No valid value found
+  };
+
+  const success = fillBoard(0, 0);
+  assert(success, "Failed to generate a valid game board");
   return gameValues;
+}
+
+// Utility function to shuffle an array
+function shuffleArray(array: Array<number>): Array<number> {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
 
 // Returns the number of values that are bigger than the precedent ones in the input game entry. The order of verification is from the lower indexes to the higher indexes.
@@ -332,7 +363,7 @@ function computeAllHintValues(gameValues: Array<GameEntry>) : Record<HintPositio
 function getGameRowValues(index: number) : GameEntry {
   const allCells = getGameRowCells(index);
   const data = new Array<number>();
-  for (const cell of allCells) {
+  for (const cell of Array.from(allCells)) {
     // Convert cell value into number using + operator
     const cellValue: number = +(cell.textContent);
     data.push(cellValue);
@@ -410,15 +441,6 @@ function getRandomNumber(min: number, max: number) : number {
 // Function used to ensure that the assumptions done during implementation are valid everytime.
 function assert(condition: unknown, msg?: string): asserts condition {
   if (!condition) throw new Error(msg);
-}
-
-// Log debug information that are sometime cryptic and destinate to developers. The text to log will only be visible if the query parameter "?debug" is used.
-function LOG(text: string) : void {
-  //const urlParams = new URLSearchParams(window.location.search);
-  //const debugActivated = urlParams.has("debug");
-  //if (debugActivated){
-    console.log(text);
-  //}
 }
 
 // Log informative data that could be useful to user.
